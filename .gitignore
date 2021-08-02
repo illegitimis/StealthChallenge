@@ -1,0 +1,11 @@
+test/StealthChallenge.Tests/bin/
+test/StealthChallenge.Tests/obj/
+src/StealthChallenge.Abstractions/.vs/
+src/StealthChallenge.Abstractions/bin/
+src/StealthChallenge.Abstractions/obj/
+src/StealthChallenge.Domain/bin/
+src/StealthChallenge.Domain/obj/
+src/StealthChallenge.Infrastructure/bin/
+src/StealthChallenge.Infrastructure/obj/
+src/StealthChallenge.StateMachine/bin/
+src/StealthChallenge.StateMachine/obj/
