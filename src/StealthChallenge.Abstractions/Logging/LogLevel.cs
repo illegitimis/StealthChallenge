@@ -30,6 +30,4 @@
         /// </summary>
         Debug = 16,
     }
-
-    public enum BenchmarkType { Todo }
 }

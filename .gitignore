@@ -9,3 +9,6 @@ src/StealthChallenge.Infrastructure/bin/
 src/StealthChallenge.Infrastructure/obj/
 src/StealthChallenge.StateMachine/bin/
 src/StealthChallenge.StateMachine/obj/
+_/
+src/StealthChallenge.Logging/obj/
+src/StealthChallenge.Logging/bin/

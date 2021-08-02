@@ -1,5 +1,7 @@
-﻿namespace StealthChallenge.Abstractions.Logging
+﻿namespace StealthChallenge.Logging.Loggers
 {
+    using StealthChallenge.Abstractions.Infrastructure;
+    using StealthChallenge.Abstractions.Logging;
     using System;
     using System.Runtime.CompilerServices;
 
@@ -29,22 +31,8 @@
 
         public void Write(LogLevel level, string message) => EmptyLog();
 
-        public IDisposable Time(string messageTemplate, params object[] args) =>
-            new EmptyDisposable();
-
         public IDisposable AddProperty(string propertyName, string propertyValue) =>
             new EmptyDisposable();
-
-        public IDisposable Benchmark(BenchmarkType benchmarkType, string inputType, string deviceId, Guid messageId, int port) =>
-            new EmptyDisposable();
-
-        private sealed class EmptyDisposable : IDisposable
-        {
-            public void Dispose()
-            {
-                // no dispose op
-            }
-        }
 
         private void EmptyLog()
         {

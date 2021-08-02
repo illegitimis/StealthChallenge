@@ -8,6 +8,7 @@ using StealthChallenge.StateMachine;
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using Game = StealthChallenge.Abstractions.Domain.Models.Game;
 using static StealthChallenge.StateMachine.LogMessageTemplates;
 
 namespace StealthChallenge.Tests

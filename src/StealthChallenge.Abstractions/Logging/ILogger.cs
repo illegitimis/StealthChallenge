@@ -62,20 +62,5 @@
         void Fatal(string message, params object[] values);
 
         void Write(LogLevel level, string message);
-
-        /// <summary>
-        /// Logs information level message with duration of action. Elapsed property.
-        /// </summary>
-        /// <param name="messageTemplate"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        IDisposable Time(string messageTemplate, params object[] args);
-
-        IDisposable Benchmark(
-          BenchmarkType benchmarkType,
-          string inputType,
-          string deviceId,
-          Guid messageId,
-          int port);
     }
 }

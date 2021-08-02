@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StealthChallenge.Domain", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StealthChallenge.Infrastructure", "src\StealthChallenge.Infrastructure\StealthChallenge.Infrastructure.csproj", "{CFB23605-614B-4838-BD4F-35339C446312}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StealthChallenge.Logging", "src\StealthChallenge.Logging\StealthChallenge.Logging.csproj", "{37A8EB6B-57BD-49E2-BFBF-19B1DFC7C3BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{CFB23605-614B-4838-BD4F-35339C446312}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFB23605-614B-4838-BD4F-35339C446312}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFB23605-614B-4838-BD4F-35339C446312}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37A8EB6B-57BD-49E2-BFBF-19B1DFC7C3BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37A8EB6B-57BD-49E2-BFBF-19B1DFC7C3BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37A8EB6B-57BD-49E2-BFBF-19B1DFC7C3BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37A8EB6B-57BD-49E2-BFBF-19B1DFC7C3BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
