@@ -105,6 +105,9 @@
             await _machine.FireAsync(Trigger.ReceiveInitiatorInvitation);
         }
 
+        public override string ToString() =>
+            UmlDotGraph.Format(_machine.GetInfo());
+
         private void ConfigureStateMachine()
         {
             _machine = new StateMachine<State, Trigger>(() => State, s => State = s);

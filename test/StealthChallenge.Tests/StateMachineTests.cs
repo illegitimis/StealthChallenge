@@ -233,6 +233,14 @@ namespace StealthChallenge.Tests
             CheckTimerDispose(false);
         }
 
+        [Fact]
+        public async Task DotGraph()
+        {
+            var sm = Sut(ConfigurationSettingsProduction);
+            var dotGraph = sm.ToString();
+            Assert.NotNull(dotGraph);
+        }
+
         private void CheckTimerDispose(bool invite = true) => _log
                 .Received(1)
                 .Debug(

@@ -1,0 +1,28 @@
+digraph {
+compound=true;
+node [shape=Mrecord]
+rankdir="LR"
+"Zero" [label="Zero"];
+"GotInitiatorInvitation" [label="GotInitiatorInvitation|entry / GotInitiatorInvitation\nexit / SendChallengerInvite"];
+"WaitingForChallengerConfirmation" [label="WaitingForChallengerConfirmation|entry / invite Timer\nexit / DisposeInvitationTimer"];
+"GameInviteTimedOut" [label="GameInviteTimedOut|entry / GameInviteTimedOut"];
+"GameStarted" [label="GameStarted|entry / GameStarted"];
+"WaitingForPicks" [label="WaitingForPicks|entry / picks Timer"];
+"WaitingForSecondPick" [label="WaitingForSecondPick"];
+"GameEnded" [label="GameEnded|entry / EndAsync"];
+"GamePicksTimedOut" [label="GamePicksTimedOut|entry / EndAsync"];
+"InvitationRejected" [label="InvitationRejected"];
+
+"Zero" -> "GotInitiatorInvitation" [style="solid", label="ReceiveInitiatorInvitation"];
+"GotInitiatorInvitation" -> "WaitingForChallengerConfirmation" [style="solid", label="SendChallengerInvitation"];
+"WaitingForChallengerConfirmation" -> "GameStarted" [style="solid", label="ReceiveChallengerConfirmation"];
+"WaitingForChallengerConfirmation" -> "InvitationRejected" [style="solid", label="ReceiveChallengerRejection"];
+"WaitingForChallengerConfirmation" -> "GameInviteTimedOut" [style="filled", label="InviteTimeOut"];
+"GameStarted" -> "WaitingForPicks" [style="solid", label="MakeYourPicks"];
+"WaitingForPicks" -> "WaitingForSecondPick" [style="solid", label="HavePick"];
+"WaitingForPicks" -> "GamePicksTimedOut" [style="filled", label="MakePicksTimeOut"];
+"WaitingForSecondPick" -> "GameEnded" [style="filled", label="HavePick"];
+"WaitingForSecondPick" -> "GamePicksTimedOut" [style="solid", label="MakePicksTimeOut"];
+ init [label="", shape=point];
+ init -> "Zero"[style = "solid"]
+}
