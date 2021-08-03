@@ -31,8 +31,9 @@
 
                 Parser
                     .Default
-                    .ParseArguments<Friends>(args)
+                    .ParseArguments<Friends, Invitations>(args)
                     .WithParsed<Friends>(async (x) => await FriendsCommandHandler(x))
+                    .WithParsed<Invitations>(async (x) => await InvitationsCommandHandler(x))
                     .WithNotParsed(ConsoleWriter.WriteErrors);
             }
             catch (Exception ex)
@@ -44,30 +45,41 @@
 
         private static async Task FriendsCommandHandler(Friends friends)
         {
-            switch (friends)
+            if (friends.List)
             {
-                case Friends _ when friends.List:
-                    await GetFriendsListAsync();
-                    break;
-
-                case Friends _ when friends.Matchmake:
-                    await MatchmakeAsync();
-                    break;
-
-                default:
-                    break;
+                await SendCommandAsync(
+                    nameof(GetFriendsListCommand),
+                    () => new GetFriendsListCommand { User = appSettings.User });
+            }
+            else if (friends.Matchmake)
+            {
+                await SendCommandAsync(
+                    nameof(MatchmakeCommand),
+                    () => new MatchmakeCommand { User = appSettings.User });
             }
         }
 
-        private static async Task GetFriendsListAsync() =>
-            await SendCommandAsync(
-                nameof(GetFriendsListCommand),
-                () => new GetFriendsListCommand { User = appSettings.User });
-
-        private static async Task MatchmakeAsync() =>
-            await SendCommandAsync(
-                nameof(MatchmakeCommand),
-                () => new MatchmakeCommand { User = appSettings.User });
+        private static async Task InvitationsCommandHandler(Invitations invite)
+        {
+            if (!string.IsNullOrWhiteSpace(invite.User))
+            {
+                await SendCommandAsync(
+                   nameof(InviteCommand),
+                   () => new InviteCommand { User = appSettings.User , Challenger = invite.User });
+            }
+            else if (!string.IsNullOrWhiteSpace(invite.AcceptGame))
+            {
+                await SendCommandAsync(
+                   nameof(AcceptInvitationCommand),
+                   () => new AcceptInvitationCommand { User = appSettings.User, GameId = invite.AcceptGame });
+            }
+            else if (!string.IsNullOrWhiteSpace(invite.RejectGame))
+            {
+                await SendCommandAsync(
+                   nameof(RejectInvitationCommand),
+                   () => new RejectInvitationCommand { User = appSettings.User, GameId = invite.RejectGame });
+            }
+        }
 
         private static async Task SendCommandAsync(string description, Func<AbstractCommand> func)
         {
@@ -88,7 +100,6 @@
                         received = await stream.ReadAsync(buf, 0, client.ReceiveBufferSize);
                         await Task.Delay(TimeSpan.FromSeconds(1));
                     }
-                    // var span = new Span<byte>(buf, 0, received);
                     var span = new byte[received];
                     Array.Copy(buf, span, received);
                     var text = Encoding.UTF8.GetString(span);

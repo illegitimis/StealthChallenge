@@ -42,14 +42,21 @@ namespace StealthChallenge.Api
 
             services.TryAddSingleton<ISerializeClientCommands, MessagePackClientCommandsSerializer>();
             services.TryAddSingleton<IUserService, InMemoryStubUserService>();
-
             var configurationSettings = Configuration
                    .GetSection(nameof(ConfigurationSettings))
                    .Get<ConfigurationSettings>();
+            services.TryAddSingleton<ConfigurationSettings>(configurationSettings);
             services.TryAddSingleton<IMakeMatches>(sp =>
                 new RankingRangeMatchmaker(
                     sp.GetRequiredService<IUserService>(),
                     configurationSettings.MatchmakeRankingRange));
+
+            services.TryAddSingleton<ICommunicateViaTcp, NoOpCommunicateViaTcp>();
+            services.TryAddSingleton<IGameService, NoOpGameService>();
+            services.TryAddSingleton<IComputeWinner, RockPaperScissorsWinnerComputer>();
+            services.TryAddSingleton<IProvideRockPaperScissorsStateMachineDependencies,
+                RockPaperScissorsStateMachineDependenciesProvider>();
+
             services.TryAddSingleton<IClientCommandStrategy, ClientCommandStrategy>();
         }
 

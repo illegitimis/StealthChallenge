@@ -8,10 +8,11 @@ using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Buffers;
 using StealthChallenge.Abstractions.Domain.Services;
+using StealthChallenge.Abstractions.Infrastructure.Services;
+using StealthChallenge.MessagePack;
 
 namespace StealthChallenge.Api
 {
-
 
 
     public class TcpConnectionHandler : ConnectionHandler
@@ -19,15 +20,18 @@ namespace StealthChallenge.Api
         private readonly ISerializeClientCommands _serializer;
         private readonly ILogger<TcpConnectionHandler> _logger;
         private readonly IClientCommandStrategy _clientCommandStrategy;
+        private readonly IManageRunningGames _gm;
 
         public TcpConnectionHandler(
             ISerializeClientCommands serializer,
             ILoggerFactory loggerFactory,
-            IClientCommandStrategy clientCommandStrategy)
+            IClientCommandStrategy clientCommandStrategy,
+            IManageRunningGames gm)
         {
             _serializer = serializer;
             _logger = loggerFactory.Get<TcpConnectionHandler>();
             _clientCommandStrategy = clientCommandStrategy;
+            _gm = gm;
         }
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -56,7 +60,8 @@ namespace StealthChallenge.Api
                         continue;
                     }
 
-                    var clientCommand = _serializer.Deserialize(buffer.ToArray());
+                    var clientCommand = _serializer.Deserialize(buffer.ToArray()) as AbstractCommand;
+                    await _gm.AddConnectionAsync(clientCommand.User, connection.ConnectionId, connection.Transport.Output);
                     await _clientCommandStrategy
                         .HandleAsync(clientCommand, connection.Transport.Output)
                         .ConfigureAwait(false);
@@ -110,9 +115,9 @@ namespace StealthChallenge.Api
             {
                 _logger.Debug(MtDisconnect, new[] { connection.ConnectionId });
 
-                //await _pipeWorkerFactory
-                //    .DisconnectAsync(tcpConnectionDetails)
-                //    .ConfigureAwait(false);
+                await _gm
+                    .DisconnectAsync(connection.ConnectionId)
+                    .ConfigureAwait(false);
             }
         }
 

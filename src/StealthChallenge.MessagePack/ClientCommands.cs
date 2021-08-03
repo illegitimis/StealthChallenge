@@ -26,6 +26,13 @@ namespace StealthChallenge.MessagePack
     {
     }
 
+    [MessagePackObject]
+    public class InviteCommand : AbstractCommand
+    {
+        [Key(1)]
+        public string Challenger { get; set; }
+    }
+
     public abstract class AbstractGameCommand : AbstractCommand
     {
         [Key(1)]

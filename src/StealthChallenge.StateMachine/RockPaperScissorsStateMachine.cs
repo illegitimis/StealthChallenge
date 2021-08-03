@@ -15,7 +15,7 @@
     using StealthChallenge.Abstractions.Domain.Models;
     using State = StealthChallenge.Abstractions.Domain.Models.State;
 
-    public class RockPaperScissorsStateMachine
+    public class RockPaperScissorsStateMachine : IRockPaperScissorsStateMachine
     {
         private readonly ICommunicateViaTcp _tcpCommunicator;
         private readonly IGameService _gameService;
@@ -25,8 +25,8 @@
         private readonly ConfigurationSettings _configurationSettings;
 
         public State State { get; private set; }
+        public Guid GameId { get; private set; }
 
-        private Guid _gameId;
         private string _initiator;
         private string _challenger;
         private RpsChoice? _initiatorPick;
@@ -56,15 +56,28 @@
             ConfigureStateMachine();
         }
 
+        public RockPaperScissorsStateMachine(IProvideRockPaperScissorsStateMachineDependencies x)
+        {
+            _tcpCommunicator = x.GetTcpCommunicator();
+            _gameService = x.GetGameService();
+            _log = x.GetLogger() as ILogger<RockPaperScissorsStateMachine>;
+            _configurationSettings = x.GetConfigurationSettings();
+            _winnerComputer = x.GetAlgorithm();
+            _userService = x.GetUserService();
+
+            State = State.Zero;
+            ConfigureStateMachine();
+        }
+
         public async Task ChallengerAccept(string user)
         {
             if (!_machine.CanFire(Trigger.ReceiveChallengerConfirmation))
             {
-                _log.Info(ImpossibleChallengeAccept, _gameId, State);
+                _log.Info(ImpossibleChallengeAccept, GameId, State);
                 return;
             }
             if (_challenger != user) throw new NotSupportedException();
-            _log.Info(ReceiveChallengerConfirmation, _gameId);
+            _log.Info(ReceiveChallengerConfirmation, GameId);
             await _machine.FireAsync(Trigger.ReceiveChallengerConfirmation);
         }
 
@@ -72,7 +85,7 @@
         {
             if (!_machine.CanFire(Trigger.ReceiveChallengerRejection))
                 return;
-            _log.Info(InviteReject, _gameId);
+            _log.Info(InviteReject, GameId);
             _machine.Fire(Trigger.ReceiveChallengerRejection);
         }
 
@@ -80,7 +93,7 @@
         {
             if (!_machine.CanFire(Trigger.HavePick))
             {
-                _log.Info("TODO", _gameId, State);
+                _log.Info("TODO", GameId, State);
                 return;
             }
 
@@ -118,7 +131,7 @@
 
             _machine.Configure(State.GotInitiatorInvitation)
                 .OnEntryAsync(OnInitiatorInvitationAsync, State.GotInitiatorInvitation.ToString())
-                .OnExitAsync(() => _tcpCommunicator.SendInviteAsync(_challenger, _gameId))
+                .OnExitAsync(() => _tcpCommunicator.SendInviteAsync(_challenger, GameId))
                 .Permit(Trigger.SendChallengerInvitation, State.WaitingForChallengerConfirmation);
 
             _machine.Configure(State.WaitingForChallengerConfirmation)
@@ -136,7 +149,7 @@
 
             _machine.Configure(State.GameInviteTimedOut)
                 .OnEntry(
-                    () => _log.Warn(InviteTimeout, _gameId),
+                    () => _log.Warn(InviteTimeout, GameId),
                     nameof(State.GameInviteTimedOut));
 
             _machine.Configure(State.GameStarted)
@@ -171,22 +184,22 @@
             switch (outcome)
             {
                 case Outcome.Tie:
-                    await _tcpCommunicator.SendOutcomeAsync(_gameId, _initiator, UserOutcome.Tie);
-                    await _tcpCommunicator.SendOutcomeAsync(_gameId, _challenger, UserOutcome.Tie);
+                    await _tcpCommunicator.SendOutcomeAsync(GameId, _initiator, UserOutcome.Tie);
+                    await _tcpCommunicator.SendOutcomeAsync(GameId, _challenger, UserOutcome.Tie);
                     await _userService.UpdateRankingAsync(_initiator, _configurationSettings.RankingTie);
                     await _userService.UpdateRankingAsync(_challenger, _configurationSettings.RankingTie);
                     break;
 
                 case Outcome.InitiatorWin:
-                    await _tcpCommunicator.SendOutcomeAsync(_gameId, _initiator, UserOutcome.Win);
-                    await _tcpCommunicator.SendOutcomeAsync(_gameId, _challenger, UserOutcome.Lose);
+                    await _tcpCommunicator.SendOutcomeAsync(GameId, _initiator, UserOutcome.Win);
+                    await _tcpCommunicator.SendOutcomeAsync(GameId, _challenger, UserOutcome.Lose);
                     await _userService.UpdateRankingAsync(_initiator, _configurationSettings.RankingWin);
                     await _userService.UpdateRankingAsync(_challenger, _configurationSettings.RankingLoss);
                     break;
 
                 case Outcome.ChallengerWin:
-                    await _tcpCommunicator.SendOutcomeAsync(_gameId, _initiator, UserOutcome.Lose);
-                    await _tcpCommunicator.SendOutcomeAsync(_gameId, _challenger, UserOutcome.Win);
+                    await _tcpCommunicator.SendOutcomeAsync(GameId, _initiator, UserOutcome.Lose);
+                    await _tcpCommunicator.SendOutcomeAsync(GameId, _challenger, UserOutcome.Win);
                     await _userService.UpdateRankingAsync(_initiator, _configurationSettings.RankingLoss);
                     await _userService.UpdateRankingAsync(_challenger, _configurationSettings.RankingWin);
                     break;
@@ -196,9 +209,9 @@
 
         private async Task OnGameStartedAsync()
         {
-            _log.Info(GameStart, _gameId);
-            await _tcpCommunicator.StartNotificationAsync(_initiator, _gameId);
-            await _tcpCommunicator.StartNotificationAsync(_challenger, _gameId);
+            _log.Info(GameStart, GameId);
+            await _tcpCommunicator.StartNotificationAsync(_initiator, GameId);
+            await _tcpCommunicator.StartNotificationAsync(_challenger, GameId);
             _machine.Fire(Trigger.MakeYourPicks);
         }
 
@@ -206,7 +219,7 @@
         {
             var date = DateTime.UtcNow;
             var entity = new Game(_initiator, _challenger, date);
-            _gameId = await _gameService.AddGameAsync(entity);
+            GameId = await _gameService.AddGameAsync(entity);
             _machine.Fire(Trigger.SendChallengerInvitation);
         }
 
@@ -251,7 +264,7 @@
         {
             timer?.Stop();
             timer?.Dispose();
-            _log.Debug(messageTemplate, new object[] { _gameId });
+            _log.Debug(messageTemplate, new object[] { GameId });
         }
     }
 }
