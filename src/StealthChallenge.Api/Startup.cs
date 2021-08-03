@@ -28,7 +28,11 @@ namespace StealthChallenge.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <example> services.AddControllers() </example>
         public void ConfigureServices(IServiceCollection services)
         {
             services.TryAddSingleton(sp => Serilog.Log.Logger);
@@ -46,8 +50,7 @@ namespace StealthChallenge.Api
                 new RankingRangeMatchmaker(
                     sp.GetRequiredService<IUserService>(),
                     configurationSettings.MatchmakeRankingRange));
-            
-            // services.AddControllers();
+            services.TryAddSingleton<IClientCommandStrategy, ClientCommandStrategy>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

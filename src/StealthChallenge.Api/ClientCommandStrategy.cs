@@ -7,6 +7,7 @@ using System.Text;
 using StealthChallenge.Abstractions.Domain.Services;
 using System.IO.Pipelines;
 using StealthChallenge.Abstractions.Infrastructure.Services;
+using StealthChallenge.Abstractions.Logging;
 
 namespace StealthChallenge.Api
 {
@@ -19,11 +20,13 @@ namespace StealthChallenge.Api
     {
         private readonly IUserService _userService;
         private readonly IMakeMatches _matchmaker;
+        private readonly ILogger<ClientCommandStrategy> _log;
 
-        public ClientCommandStrategy(IUserService userService, IMakeMatches matchmaker)
+        public ClientCommandStrategy(IUserService userService, IMakeMatches matchmaker, ILoggerFactory factory)
         {
             _userService = userService;
             _matchmaker = matchmaker;
+            _log = factory.Get<ClientCommandStrategy>();
         }
 
         /// <summary>
@@ -34,6 +37,7 @@ namespace StealthChallenge.Api
         /// <returns></returns>
         public async Task HandleAsync(IClientCommand clientCommand, PipeWriter pipeWriter)
         {
+            _log.Info("Handling command {@command}", clientCommand);
             switch (clientCommand)
             {
                 case GetFriendsListCommand getFriendsList:

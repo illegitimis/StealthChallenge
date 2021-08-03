@@ -39,7 +39,6 @@
             {
                 ConsoleWriter.Error($"{ex.GetType().Name}-{ex.Message}");
             }
-
             Console.ReadKey();
         }
 
@@ -86,10 +85,13 @@
                     var received = 0;
                     while (received == 0)
                     {
-                        received = stream.Read(buf, 0, client.ReceiveBufferSize);
+                        received = await stream.ReadAsync(buf, 0, client.ReceiveBufferSize);
                         await Task.Delay(TimeSpan.FromSeconds(1));
                     }
-                    var text = Encoding.UTF8.GetString(buf);
+                    // var span = new Span<byte>(buf, 0, received);
+                    var span = new byte[received];
+                    Array.Copy(buf, span, received);
+                    var text = Encoding.UTF8.GetString(span);
                     ConsoleWriter.Info(text);
                 }
             }
