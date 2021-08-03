@@ -24,6 +24,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\StealthChallenge.Domain\StealthChallenge.Domain.csproj" />
     <ProjectReference Include="..\..\src\StealthChallenge.Infrastructure\StealthChallenge.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\StealthChallenge.Logging\StealthChallenge.Logging.csproj" />
+    <ProjectReference Include="..\..\src\StealthChallenge.MessagePack\StealthChallenge.MessagePack.csproj" />
     <ProjectReference Include="..\..\src\StealthChallenge.StateMachine\StealthChallenge.StateMachine.csproj" />
   </ItemGroup>
 

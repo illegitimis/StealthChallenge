@@ -1,0 +1,16 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "StealthChallenge.Api": {
+        "commandName": "Project",
+        "commandLineArgs": "--server.urls=\"http://0.0.0.0:5700\" --environment \"Development\"",
+        "dotnetRunMessages": "true",
+        "launchBrowser": false,
+        "applicationUrl": "http://localhost:5700/",
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "ASPNETCORE_URLS": "http://0.0.0.0:5700"
+        }
+    }
+  }
+}

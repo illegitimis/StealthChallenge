@@ -1,7 +1,7 @@
 using NSubstitute;
 using StealthChallenge.Abstractions.Domain.Models;
 using StealthChallenge.Abstractions.Domain.Services;
-using StealthChallenge.Abstractions.Infrastructure.Models;
+using StealthChallenge.Abstractions.Infrastructure.Configuration;
 using StealthChallenge.Abstractions.Infrastructure.Services;
 using StealthChallenge.Abstractions.Logging;
 using StealthChallenge.StateMachine;
@@ -234,7 +234,7 @@ namespace StealthChallenge.Tests
         }
 
         [Fact]
-        public async Task DotGraph()
+        public void DotGraph()
         {
             var sm = Sut(ConfigurationSettingsProduction);
             var dotGraph = sm.ToString();

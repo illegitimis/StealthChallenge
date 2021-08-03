@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StealthChallenge.ConsoleClient": {
+      "commandName": "Project",
+      "commandLineArgs": "friends -m"
+    }
+  }
+}

@@ -11,7 +11,7 @@
     using static LogMessageTemplates;
     using StealthChallenge.Abstractions.Infrastructure.Services;
     using StealthChallenge.Abstractions.Domain.Services;
-    using StealthChallenge.Abstractions.Infrastructure.Models;
+    using StealthChallenge.Abstractions.Infrastructure.Configuration;
     using StealthChallenge.Abstractions.Domain.Models;
     using State = StealthChallenge.Abstractions.Domain.Models.State;
 

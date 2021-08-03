@@ -36,7 +36,8 @@
                 .MinimumLevel.Override("System", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 .Enrich.WithExceptionDetails()
-                .Enrich.WithApplicationName();
+                .Enrich.WithApplicationName()
+                .WriteTo.Console(LogEventLevel.Verbose, "[{Timestamp:HH:mm:ss} {Level:u3}] {TraceId} {Message:lj}{NewLine}{Exception}");
 
         /// <summary>
         /// Writes to a daily rolling file.

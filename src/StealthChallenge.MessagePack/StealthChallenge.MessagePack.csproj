@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="MessagePack" Version="2.3.75" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.3.75" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\StealthChallenge.Abstractions\StealthChallenge.Abstractions.csproj" />
+    </ItemGroup>
+</Project>

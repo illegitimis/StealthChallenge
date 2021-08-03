@@ -12,3 +12,10 @@ src/StealthChallenge.StateMachine/obj/
 _/
 src/StealthChallenge.Logging/obj/
 src/StealthChallenge.Logging/bin/
+.vs/
+src/StealthChallenge.Api/bin/
+src/StealthChallenge.ConsoleClient/bin/
+src/StealthChallenge.ConsoleClient/obj/
+src/StealthChallenge.MessagePack/bin/
+src/StealthChallenge.MessagePack/obj/
+src/StealthChallenge.Api/obj/
