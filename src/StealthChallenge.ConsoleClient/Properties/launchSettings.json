@@ -2,7 +2,9 @@
   "profiles": {
     "StealthChallenge.ConsoleClient": {
       "commandName": "Project",
-      "commandLineArgs": "friends -m"
+      // "commandLineArgs": "friends --list"
+      // "commandLineArgs": "friends -m"
+      "commandLineArgs": " invite --send Noob"
     }
   }
 }

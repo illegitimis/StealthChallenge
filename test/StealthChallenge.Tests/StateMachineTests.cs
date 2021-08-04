@@ -127,7 +127,7 @@ namespace StealthChallenge.Tests
                 .Returns(guid);
 
             await sm.InitiatorInviteAsync(from, to);
-            sm.ChallengerReject();
+            sm.ChallengerReject(to);
 
             Assert.Equal(State.InvitationRejected, sm.State);
             _log

@@ -9,6 +9,7 @@ namespace StealthChallenge.MessagePack
     [Union(2, typeof(RejectInvitationCommand))]
     [Union(3, typeof(SendPickCommand))]
     [Union(4, typeof(MatchmakeCommand))]
+    [Union(5, typeof(InviteCommand))]
     [MessagePackObject]
     public abstract class AbstractCommand : IClientCommand
     {

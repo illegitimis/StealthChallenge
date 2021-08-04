@@ -14,8 +14,6 @@ using StealthChallenge.Abstractions.Logging;
 using StealthChallenge.Abstractions.Infrastructure.Services;
 using StealthChallenge.Infrastructure;
 using StealthChallenge.Abstractions.Infrastructure.Configuration;
-//using ILogger = global::StealthChallenge.Abstractions.Logging.ILogger;
-//using ILoggerFactory = global::StealthChallenge.Abstractions.Logging.ILoggerFactory;
 
 namespace StealthChallenge.Api
 {
@@ -51,12 +49,13 @@ namespace StealthChallenge.Api
                     sp.GetRequiredService<IUserService>(),
                     configurationSettings.MatchmakeRankingRange));
 
-            services.TryAddSingleton<ICommunicateViaTcp, NoOpCommunicateViaTcp>();
+            // services.TryAddSingleton<ICommunicateViaTcp, NoOpCommunicateViaTcp>();
+            services.TryAddSingleton<ICommunicateViaTcp, TcpCommunicator>();
+
             services.TryAddSingleton<IGameService, NoOpGameService>();
             services.TryAddSingleton<IComputeWinner, RockPaperScissorsWinnerComputer>();
-            services.TryAddSingleton<IProvideRockPaperScissorsStateMachineDependencies,
-                RockPaperScissorsStateMachineDependenciesProvider>();
-
+            services.TryAddSingleton<IProvideRockPaperScissorsStateMachineDependencies, RockPaperScissorsStateMachineDependenciesProvider>();
+            services.TryAddSingleton<IManageRunningGames, GameManager>();
             services.TryAddSingleton<IClientCommandStrategy, ClientCommandStrategy>();
         }
 

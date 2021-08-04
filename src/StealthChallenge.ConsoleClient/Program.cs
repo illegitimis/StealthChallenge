@@ -31,9 +31,10 @@
 
                 Parser
                     .Default
-                    .ParseArguments<Friends, Invitations>(args)
+                    .ParseArguments<Friends, Invitations, Game>(args)
                     .WithParsed<Friends>(async (x) => await FriendsCommandHandler(x))
                     .WithParsed<Invitations>(async (x) => await InvitationsCommandHandler(x))
+                    .WithParsed<Game>(async (x) => await GameCommandHandler(x))
                     .WithNotParsed(ConsoleWriter.WriteErrors);
             }
             catch (Exception ex)
@@ -41,6 +42,13 @@
                 ConsoleWriter.Error($"{ex.GetType().Name}-{ex.Message}");
             }
             Console.ReadKey();
+        }
+
+        private static async Task GameCommandHandler(Game x)
+        {
+            await SendCommandAsync(
+                  nameof(SendPickCommand),
+                  () => new SendPickCommand { User = appSettings.User, GameId = x.Id, Pick = x.Pick });
         }
 
         private static async Task FriendsCommandHandler(Friends friends)
@@ -107,6 +115,5 @@
                 }
             }
         }
-
     }
 }

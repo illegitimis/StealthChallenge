@@ -81,10 +81,11 @@
             await _machine.FireAsync(Trigger.ReceiveChallengerConfirmation);
         }
 
-        public void ChallengerReject()
+        public void ChallengerReject(string user)
         {
             if (!_machine.CanFire(Trigger.ReceiveChallengerRejection))
                 return;
+            if (_challenger != user) throw new NotSupportedException();
             _log.Info(InviteReject, GameId);
             _machine.Fire(Trigger.ReceiveChallengerRejection);
         }
@@ -139,8 +140,7 @@
                 {
                     _inviteTimer = CreateTimer(
                         _configurationSettings.AcceptInvitationTimeoutInSeconds,
-                        Trigger.InviteTimeOut,
-                        fireAsync: false);
+                        Trigger.InviteTimeOut);
                 })
                 .OnExit(DisposeInvitationTimer)
                 .Permit(Trigger.ReceiveChallengerConfirmation, State.GameStarted)
@@ -148,9 +148,7 @@
                 .Permit(Trigger.InviteTimeOut, State.GameInviteTimedOut);
 
             _machine.Configure(State.GameInviteTimedOut)
-                .OnEntry(
-                    () => _log.Warn(InviteTimeout, GameId),
-                    nameof(State.GameInviteTimedOut));
+                .OnEntryAsync(OnGameInviteTimedOutAsync, nameof(State.GameInviteTimedOut));
 
             _machine.Configure(State.GameStarted)
                 .OnEntryAsync(OnGameStartedAsync, nameof(State.GameStarted))
@@ -161,8 +159,7 @@
                 {
                     _picksTimer = CreateTimer(
                         _configurationSettings.MakePicksTimeoutInSeconds,
-                        Trigger.MakePicksTimeOut,
-                        fireAsync: true);
+                        Trigger.MakePicksTimeOut);
                 })
                 .Permit(Trigger.HavePick, State.WaitingForSecondPick)
                 .Permit(Trigger.MakePicksTimeOut, State.GamePicksTimedOut);
@@ -176,6 +173,12 @@
             
             _machine.Configure(State.GamePicksTimedOut)
                 .OnEntryAsync(EndAsync);
+        }
+
+        private async Task OnGameInviteTimedOutAsync()
+        {
+            _log.Warn(InviteTimeout, GameId);
+            await _tcpCommunicator.InviteTimeoutAsync(_initiator, GameId);
         }
 
         private async Task EndAsync()
@@ -223,7 +226,7 @@
             _machine.Fire(Trigger.SendChallengerInvitation);
         }
 
-        private Timer CreateTimer(int timeoutInSeconds, Trigger onElapsedTrigger, bool fireAsync)
+        private Timer CreateTimer(int timeoutInSeconds, Trigger onElapsedTrigger)
         {
             var timer = new Timer
             {
@@ -234,23 +237,11 @@
                 /* msec */
                 Interval = timeoutInSeconds * 1000,
             };
-            if(fireAsync)
+            timer.Elapsed += async (object sender, ElapsedEventArgs e) =>
             {
-                timer.Elapsed += async (object sender, ElapsedEventArgs e) =>
-                {
-                    if (!_machine.CanFire(onElapsedTrigger)) return;
-                    await _machine.FireAsync(onElapsedTrigger);
-                };
-            }
-            else
-            {
-                timer.Elapsed += (object sender, ElapsedEventArgs e) =>
-                {
-                    if (!_machine.CanFire(onElapsedTrigger)) return;
-                    _machine.Fire(onElapsedTrigger);
-                };
-            }
-            
+                if (!_machine.CanFire(onElapsedTrigger)) return;
+                await _machine.FireAsync(onElapsedTrigger);
+            };
             return timer;
         }
 

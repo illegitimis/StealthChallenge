@@ -9,25 +9,9 @@ using System.IO.Pipelines;
 using StealthChallenge.Abstractions.Infrastructure.Services;
 using StealthChallenge.Abstractions.Logging;
 using StealthChallenge.StateMachine;
-using System.Threading.Tasks;
-using System.IO.Pipelines;
 
 namespace StealthChallenge.Api
 {
-    public interface IClientCommandStrategy
-    {
-        public Task HandleAsync(IClientCommand clientCommand, PipeWriter pipeWriter);
-    }
-
-    public interface IManageRunningGames
-    {
-        void AddStateMachine(
-            IRockPaperScissorsStateMachine sm,
-            string initiator,
-            string challenger);
-        Task DisconnectAsync(string connectionId);
-        Task AddConnectionAsync(string user, string connectionId, PipeWriter output);
-    }
 
     public class ClientCommandStrategy : IClientCommandStrategy
     {
@@ -90,10 +74,30 @@ namespace StealthChallenge.Api
                     var initiator = inviteCommand.User;
                     var challenger = inviteCommand.Challenger;
                     var sm = new RockPaperScissorsStateMachine(_smDepends);
+                    _gm.Add(sm, initiator, challenger);
                     await sm
                         .InitiatorInviteAsync(initiator, challenger)
                         .ConfigureAwait(false);
-                    _gm.AddStateMachine(sm, initiator, challenger);
+                    break;
+
+                case AcceptInvitationCommand acceptCmd:
+                    if (!Guid.TryParse(acceptCmd.GameId, out Guid guid)) return;
+                    var tuple = _gm.Get(guid);
+                    if (tuple.Item3 == acceptCmd.User)
+                        await tuple.Item1.ChallengerAccept(acceptCmd.User);
+                    break;
+
+                case RejectInvitationCommand rejectCmd:
+                    if (!Guid.TryParse(rejectCmd.GameId, out guid)) return;
+                    tuple = _gm.Get(guid);
+                    if (tuple.Item3 == rejectCmd.User)
+                        tuple.Item1.ChallengerReject(rejectCmd.User);
+                    break;
+
+                case SendPickCommand cmd:
+                    if (!Guid.TryParse(cmd.GameId, out guid)) return;
+                    tuple = _gm.Get(guid);
+                    await tuple.Item1.ReceivePickAsync(cmd.User, cmd.Pick);
                     break;
 
                 default:

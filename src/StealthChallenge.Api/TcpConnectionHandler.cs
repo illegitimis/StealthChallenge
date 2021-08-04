@@ -20,18 +20,22 @@ namespace StealthChallenge.Api
         private readonly ISerializeClientCommands _serializer;
         private readonly ILogger<TcpConnectionHandler> _logger;
         private readonly IClientCommandStrategy _clientCommandStrategy;
-        private readonly IManageRunningGames _gm;
+        //private readonly IManageRunningGames _gm;
+        private readonly ICommunicateViaTcp _tcpCom;
 
         public TcpConnectionHandler(
             ISerializeClientCommands serializer,
             ILoggerFactory loggerFactory,
             IClientCommandStrategy clientCommandStrategy,
-            IManageRunningGames gm)
+            ICommunicateViaTcp tcpCom
+            //IManageRunningGames gm
+            )
         {
             _serializer = serializer;
             _logger = loggerFactory.Get<TcpConnectionHandler>();
             _clientCommandStrategy = clientCommandStrategy;
-            _gm = gm;
+            // _gm = gm;
+            _tcpCom = tcpCom;
         }
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -61,7 +65,7 @@ namespace StealthChallenge.Api
                     }
 
                     var clientCommand = _serializer.Deserialize(buffer.ToArray()) as AbstractCommand;
-                    await _gm.AddConnectionAsync(clientCommand.User, connection.ConnectionId, connection.Transport.Output);
+                    await _tcpCom.AddConnectionAsync(clientCommand.User, connection.ConnectionId, connection.Transport.Output);
                     await _clientCommandStrategy
                         .HandleAsync(clientCommand, connection.Transport.Output)
                         .ConfigureAwait(false);
@@ -115,15 +119,12 @@ namespace StealthChallenge.Api
             {
                 _logger.Debug(MtDisconnect, new[] { connection.ConnectionId });
 
-                await _gm
+                await _tcpCom
                     .DisconnectAsync(connection.ConnectionId)
                     .ConfigureAwait(false);
             }
         }
 
-        private const string RemoteEndpointMessageTemplate = "Remote endpoint {@remoteEndPoint} not an ipendpoint";
-        private const string LocalEndpointMessageTemplate = "Local endpoint {@localEndPoint} not an ipendpoint";
-        private const string TcpConnected = "Connection {connectionId} connected. Remote address {ra} port {rp}. Local address {la} port {lp}";
         private const string MtReadInput = "Input transport pipe read result length {length}. Cancelled {cancel}. Completed {complete}";
         private const string MtDisconnect = "Connection {connectionId} disconnected";
         private const string MtEos = "End of the data stream has been reached for {connectionId}";
